@@ -1,2 +1,3 @@
-# crm
-Simple CRM for constructors
+
+# We will build a reconciliation algorithm
+
