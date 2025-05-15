@@ -1,21 +1,15 @@
 {
   "name": "react-from-scratch",
-  "version": "1.0.0",
-  "description": "react from scratch",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+  "module": "index.ts",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "^1.2.13",
+    "@types/figlet": "^1.7.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/erenworld/react-from-scratch.git"
+  "peerDependencies": {
+    "typescript": "^5"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/erenworld/react-from-scratch/issues"
-  },
-  "homepage": "https://github.com/erenworld/react-from-scratch#readme"
+  "dependencies": {
+    "figlet": "^1.8.1"
+  }
 }
