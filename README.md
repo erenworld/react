@@ -1,4 +1,7 @@
-<img src="https://raw.githubusercontent.com/erenworld/react/main/.github/assets/logo.svg" alt="Logo" width="30" height="30" /> Baby React
+<p align="center">
+  <img src="https://raw.githubusercontent.com/erenworld/react/main/.github/assets/logo.svg" alt="Logo" width="30" height="30" />
+  <strong>Baby React</strong>
+</p>
 
 ## Baby React?
 
