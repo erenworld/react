@@ -8,7 +8,7 @@ export interface TextNode {
 
 export interface ElementNode {
     type: typeof DOM_TYPES.ELEMENT;   
-    tag: string;                        
+    tagName: string;                        
     props: Record<string, unknown>;     
     children: Node[];
     el?: HTMLElement;
@@ -23,23 +23,22 @@ export interface FragmentNode {
 
 export type Node = TextNode | ElementNode | FragmentNode;
 
-
 /**
- * Creates an element node with its tag, properties and children.
+ * Creates an element node with its tagName, properties and children.
  * Filters null children and converts strings to text nodes.
  *
- * @param tag - HTML tag name (e.g., 'div', 'span')
+ * @param tagName - HTML tagName name (e.g., 'div', 'span')
  * @param props - Element attributes and properties
  * @param children - List of children (nodes, strings, null or undefined)
  * @returns An ElementNode object representing the virtual DOM element
  */
 export function h(
-    tag: string,
+    tagName: string,
     props: Record<string, unknown> = {},
     children: (Node | string | null | undefined)[] = []
 ): ElementNode {
     return {
-        tag,
+        tagName,
         props,
         children: mapTextNodes(withoutNulls(children)),
         type: DOM_TYPES.ELEMENT,
@@ -165,8 +164,8 @@ function createElementNode(
     vNode: ElementNode,
     parentEl: HTMLElement | DocumentFragment,
 ) {
-    const { tag, props, children } = vNode;
-    const element = document.createElement(tag);
+    const { tagName, props, children } = vNode;
+    const element = document.createElement(tagName);
 
     addProps(element, props, vNode);
     vNode.el = element;
@@ -192,9 +191,7 @@ type Props = {
  * @param vNode - The virtual element node for storing listener references
  */
 function addProps(
-    el: HTMLElement,
-    props: Props,
-    vNode: ElementNode
+    el: HTMLElement, props: Props, vNode: ElementNode
 ) {
     const { on: events = {}, ...attrs } = props;
 
@@ -217,9 +214,7 @@ type ListenerMap = Record<string, EventListener>;
  * @returns The event handler function that was added
  */
 function addEventListener(
-    eventName: string,
-    handler: EventListener,
-    el: HTMLElement
+    eventName: string, handler: EventListener, el: HTMLElement
 ): EventListener {
     el.addEventListener(eventName, handler);
     return handler;
@@ -284,9 +279,9 @@ function setStyle(el: HTMLElement, property: string, value: string) {
     el.style.setProperty(property, value);
 }
 
-function removeStyle(el: HTMLElement, property: string) {
-    el.style.removeProperty(property);
-}
+// function removeStyle(el: HTMLElement, property: string) {
+//     el.style.removeProperty(property);
+// }
 
 /**
  * Sets multiple attributes on a DOM element, including classes and styles.
