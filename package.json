@@ -4,12 +4,31 @@
   "private": true,
   "devDependencies": {
     "@types/bun": "^1.2.13",
-    "@types/figlet": "^1.7.0"
+    "@types/figlet": "^1.7.0",
+    "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "figlet": "^1.8.1"
-  }
+  },
+  "version": "1.0.0",
+  "description": "## For Svelte users, Virtual DOM is pure overhead How Svelte can be fast when it doesn’t use a virtual DOM?",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erenworld/react-from-scratch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/erenworld/react-from-scratch/issues"
+  },
+  "homepage": "https://github.com/erenworld/react-from-scratch#readme"
 }
