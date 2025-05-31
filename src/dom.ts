@@ -1,19 +1,17 @@
 
-const DOM_TYPES = {
+export const DOM_TYPES = {
     TEXT: "text",
     ELEMENT: "element",
     FRAGMENT: "fragment",
 } as const;
 
-type DOMType = typeof DOM_TYPES[keyof typeof DOM_TYPES];
-
-interface TextNode {
+export interface TextNode {
     type: typeof DOM_TYPES.TEXT;
     value: string;
     el?: Text;
 }
 
-interface ElementNode {
+export interface ElementNode {
     type: typeof DOM_TYPES.ELEMENT;   
     tag: string;                        
     props: Record<string, unknown>;     
@@ -22,24 +20,23 @@ interface ElementNode {
     listeners?: Record<string, EventListener>;
 }
 
-interface FragmentNode {
+export interface FragmentNode {
     type: typeof DOM_TYPES.FRAGMENT;
     children: Node[];  
     el?: DocumentFragment;
 }
 
-type Node = TextNode | ElementNode | FragmentNode;
+export type Node = TextNode | ElementNode | FragmentNode;
 
-type MountableElement = HTMLElement | DocumentFragment;
 
 /**
- * Crée un nœud élément avec son tag, ses propriétés et ses enfants.
- * Filtre les enfants nuls et convertit les chaînes en nœuds texte.
+ * Creates an element node with its tag, properties and children.
+ * Filters null children and converts strings to text nodes.
  *
- * @param tag - Nom de la balise HTML (ex: 'div', 'span').
- * @param props - Attributs et propriétés de l'élément.
- * @param children - Liste des enfants (nœuds, chaînes, null ou undefined).
- * @returns Un objet `ElementNode` représentant l’élément DOM virtuel.
+ * @param tag - HTML tag name (e.g., 'div', 'span')
+ * @param props - Element attributes and properties
+ * @param children - List of children (nodes, strings, null or undefined)
+ * @returns An ElementNode object representing the virtual DOM element
  */
 export function h(
     tag: string,
@@ -55,10 +52,10 @@ export function h(
 }
 
 /**
- * Crée un nœud texte à partir d'une chaîne de caractères.
+ * Creates a text node from a string.
  *
- * @param str - La chaîne à convertir en nœud texte.
- * @returns Un objet `TextNode` représentant le texte.
+ * @param str - The string to convert to a text node
+ * @returns A TextNode object representing the text
  */
 export function hString(str: string): TextNode {
     return {
@@ -68,11 +65,11 @@ export function hString(str: string): TextNode {
 }
 
 /**
- * Crée un nœud fragment à partir d'une liste d'enfants,
- * en filtrant les valeurs nulles et en convertissant les chaînes en nœuds texte.
+ * Creates a fragment node from a list of children,
+ * filtering null values and converting strings to text nodes.
  *
- * @param vNodes - Tableau d'enfants pouvant contenir des `Node`, `string`, `null` ou `undefined`.
- * @returns Un objet `FragmentNode` avec des enfants nettoyés et typés.
+ * @param vNodes - Array of children that can contain Node, string, null or undefined
+ * @returns A FragmentNode object with cleaned and typed children
  */
 export function hFragment(vNodes: (Node | string | null | undefined)[]): FragmentNode {
     return {
@@ -82,30 +79,36 @@ export function hFragment(vNodes: (Node | string | null | undefined)[]): Fragmen
 }
 
 /**
- * Filtre un tableau en supprimant les éléments `null` et `undefined`.
+ * Filters an array by removing null and undefined elements.
  *
- * @param arr - Tableau pouvant contenir des valeurs de type T, null ou undefined.
- * @returns Un tableau ne contenant que les éléments non nuls de type T.
+ * @param arr - Array that can contain values of type T, null or undefined
+ * @returns An array containing only non-null elements of type T
  */
 export function withoutNulls<T>(arr: (T | null | undefined)[]): T[] {
     return arr.filter((item): item is T => item != null);
 }
 
 /**
- * Convertit les chaînes de caractères en nœuds texte dans un tableau d'enfants.
+ * Converts strings to text nodes in a children array.
+ * 
+ * This function traverses the children array containing elements of type
+ * Node or string. If an element is a string, it transforms it into a
+ * TextNode via the hString function. Objects already of type Node are left unchanged.
  *
- * Cette fonction parcourt le tableau `children` contenant des éléments de type
- * `Node` ou `string`. Si un élément est une chaîne de caractères, elle le
- * transforme en un `TextNode` via la fonction `hString`. Les objets déjà de type
- * `Node` sont laissés inchangés.
- *
- * @param children - Tableau d'enfants contenant des `Node` ou des `string`.
- * @returns Un nouveau tableau où toutes les chaînes ont été converties en nœuds texte.
+ * @param children - Array of children containing Node or string elements
+ * @returns A new array where all strings have been converted to text nodes
  */
 export function mapTextNodes(children: (Node | string)[]): Node[] {
     return children.map((child) => typeof child == "string" ? hString(child) : child);
 }
 
+/**
+ * Mounts a virtual DOM node to a real DOM parent element.
+ * Recursively creates and appends DOM elements based on the virtual node type.
+ *
+ * @param parentEl - The parent DOM element or document fragment to mount to
+ * @param vNodes - The virtual DOM node to mount
+ */
 export function mountDOM(parentEl: HTMLElement | DocumentFragment, vNodes: Node) {
     switch (vNodes.type) {
         case DOM_TYPES.TEXT: {
@@ -126,12 +129,24 @@ export function mountDOM(parentEl: HTMLElement | DocumentFragment, vNodes: Node)
     }
 }
 
+/**
+ * Creates a real DOM text node from a virtual text node.
+ *
+ * @param vNode - The virtual text node to create
+ * @param parentEl - The parent DOM element to append to
+ */
 function createTextNode(vNode: TextNode, parentEl: HTMLElement | DocumentFragment) {
     const textNode = document.createTextNode(vNode.value);
     vNode.el = textNode;
     parentEl.append(textNode);
 }
 
+/**
+ * Creates a real DOM document fragment from a virtual fragment node.
+ *
+ * @param vNode - The virtual fragment node to create
+ * @param parentEl - The parent DOM element to append to
+ */
 function createFragmentNode(
     vNode: FragmentNode,
     parentEl: HTMLElement | DocumentFragment
@@ -145,6 +160,12 @@ function createFragmentNode(
     parentEl.append(fragment);
 }
 
+/**
+ * Creates a real DOM element from a virtual element node.
+ *
+ * @param vNode - The virtual element node to create
+ * @param parentEl - The parent DOM element to append to
+ */
 function createElementNode(
     vNode: ElementNode,
     parentEl: HTMLElement | DocumentFragment,
@@ -168,6 +189,13 @@ type Props = {
     [key: string]: unknown;
 }
 
+/**
+ * Adds properties, attributes, and event listeners to a DOM element.
+ *
+ * @param el - The DOM element to add properties to
+ * @param props - The properties object containing attributes and event listeners
+ * @param vNode - The virtual element node for storing listener references
+ */
 function addProps(
     el: HTMLElement,
     props: Props,
@@ -181,8 +209,18 @@ function addProps(
     setAttributes(el, attrs);
 }
 
+
+
 type ListenerMap = Record<string, EventListener>;
 
+/**
+ * Adds a single event listener to a DOM element.
+ *
+ * @param eventName - The name of the event to listen for
+ * @param handler - The event handler function
+ * @param el - The DOM element to attach the listener to
+ * @returns The event handler function that was added
+ */
 function addEventListener(
     eventName: string,
     handler: EventListener,
@@ -192,6 +230,13 @@ function addEventListener(
     return handler;
 }
 
+/**
+ * Adds multiple event listeners to a DOM element.
+ *
+ * @param listeners - Object mapping event names to handler functions
+ * @param el - The DOM element to attach listeners to
+ * @returns Object mapping event names to the added handler functions
+ */
 function addEventListeners(listeners: ListenerMap, el: HTMLElement): ListenerMap {
     const addedListeners: ListenerMap = {};
 
@@ -204,6 +249,27 @@ function addEventListeners(listeners: ListenerMap, el: HTMLElement): ListenerMap
     return addedListeners;
 }
 
+/**
+ * Removes multiple event listeners from a DOM element.
+ *
+ * @param listeners - Object mapping event names to handler functions
+ * @param el - The DOM element to remove listeners from
+ */
+function removeEventListeners(
+    listeners: Record<string, EventListener>,
+    el: HTMLElement
+) {
+    Object.entries(listeners).forEach(([eventName, handler]) => {
+        el.removeEventListener(eventName, handler);
+    });
+}
+
+/**
+ * Sets CSS classes on a DOM element.
+ *
+ * @param el - The DOM element to set classes on
+ * @param className - The class name(s) as string or array of strings
+ */
 function setClass(el: HTMLElement, className: string | string[]) {
     if (Array.isArray(className)) {
         el.classList.add(...className);
@@ -212,6 +278,13 @@ function setClass(el: HTMLElement, className: string | string[]) {
     }
 }
 
+/**
+ * Sets a CSS style property on a DOM element.
+ *
+ * @param el - The DOM element to set the style on
+ * @param property - The CSS property name
+ * @param value - The CSS property value
+ */
 function setStyle(el: HTMLElement, property: string, value: string) {
     el.style.setProperty(property, value);
 }
@@ -220,6 +293,12 @@ function removeStyle(el: HTMLElement, property: string) {
     el.style.removeProperty(property);
 }
 
+/**
+ * Sets multiple attributes on a DOM element, including classes and styles.
+ *
+ * @param el - The DOM element to set attributes on
+ * @param attrs - Object containing attribute names and values
+ */
 function setAttributes(
     el: HTMLElement,
     attrs: Record<string, unknown>
@@ -239,6 +318,14 @@ function setAttributes(
     }
 }
 
+/**
+ * Sets a single attribute on a DOM element.
+ * Handles data attributes and removes null attributes.
+ *
+ * @param el - The DOM element to set the attribute on
+ * @param attributeName - The name of the attribute
+ * @param attributeValue - The value of the attribute, or null to remove it
+ */
 function setAttribute(
     el: HTMLElement,
     attributeName: string,
@@ -253,11 +340,22 @@ function setAttribute(
     }
 }
 
+/**
+ * Removes an attribute from a DOM element.
+ *
+ * @param el - The DOM element to remove the attribute from
+ * @param attributeName - The name of the attribute to remove
+ */
 function removeAttribute(el: HTMLElement, attributeName: string) {
     el.removeAttribute(attributeName);
 }
 
-// destroyDOM
+/**
+ * Destroys a virtual DOM node and removes it from the real DOM.
+ * Recursively destroys all children and cleans up event listeners.
+ *
+ * @param vNodes - The virtual DOM node to destroy
+ */
 export function destroyDOM(vNodes: Node) {
     const { type } = vNodes;
 
@@ -281,6 +379,11 @@ export function destroyDOM(vNodes: Node) {
     delete vNodes.el;
 }
 
+/**
+ * Removes a text node from the DOM.
+ *
+ * @param vNode - The virtual text node to remove
+ */
 function removeTextNode(vNode: TextNode) {
     if (vNode.el && vNode.el.parentNode) {
         vNode.el.parentNode.removeChild(vNode.el);
@@ -288,6 +391,11 @@ function removeTextNode(vNode: TextNode) {
     delete vNode.el;
 }
 
+/**
+ * Removes an element node from the DOM, including its children and event listeners.
+ *
+ * @param vNode - The virtual element node to remove
+ */
 function removeElementNode(vNode: ElementNode) {
     const { el, children, listeners } = vNode;
 
@@ -299,15 +407,6 @@ function removeElementNode(vNode: ElementNode) {
         removeEventListeners(listeners, vNode.el);
         delete vNode.listeners;
     }
-}
-
-function removeEventListeners(
-    listeners: Record<string, EventListener>,
-    el: HTMLElement
-) {
-    Object.entries(listeners).forEach(([eventName, handler]) => {
-        el.removeEventListener(eventName, handler);
-    });
 }
 
 function removeFragmentNode(vNodes: FragmentNode) {

@@ -1,10 +1,12 @@
-import { mountDOM, destroyDOM, Dispatcher } from '../h.ts'
-import type { Node } from '../h.ts'
+import { mountDOM, destroyDOM } from './dom.ts'
+import { Dispatcher } from './dispatcher.ts'
+import type { Node } from './dom.ts'
 
 export function createApp<State>(params: {
     state: State;
-    view: (state: State, emit: (eventName: string, payload: string) => void) => Node;
-}, reducers: Record<string, (state: State, payload: string) => State>): {
+    view: (state: State, emit: (eventName: string, payload: any) => void) => Node;
+    reducers: Record<string, (state: State, payload: any) => State>;
+}): {
     mount: (el: HTMLElement | DocumentFragment) => void;
     unmount: () => void;
 } {
@@ -14,7 +16,6 @@ export function createApp<State>(params: {
     const dispatcher = new Dispatcher();
     const subscriptions: (() => void)[] = [];
 
-    // Fonction pour re-render l'app
     function renderApp(): void {
         if (vdom) {
             destroyDOM(vdom);
@@ -24,17 +25,16 @@ export function createApp<State>(params: {
             mountDOM(parentEl, vdom);
         }
     }
-    // Permet d'émettre un événement (dispatch)
-    function emit(eventName: string, payload: string): void {
+
+    function emit(eventName: string, payload: any): void {
         dispatcher.dispatch(eventName, payload);
     }
 
     subscriptions.push(dispatcher.afterEveryCommand(renderApp));
 
-    // Souscrire aux reducers
-    for (const actionName in reducers) {
-        const reducer = reducers[actionName];
-        const unsubscribe = dispatcher.subscribe(actionName, (payload: string) => {
+    for (const actionName in params.reducers) {
+        const reducer = params.reducers[actionName];
+        const unsubscribe = dispatcher.subscribe(actionName, (payload: any) => {
             if (reducer) {
                 params.state = reducer(params.state, payload);
             }
@@ -56,5 +56,5 @@ export function createApp<State>(params: {
             subscriptions.length = 0;
             parentEl = null;
         }
-    }
+    };
 }
