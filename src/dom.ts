@@ -1,9 +1,4 @@
-
-export const DOM_TYPES = {
-    TEXT: "text",
-    ELEMENT: "element",
-    FRAGMENT: "fragment",
-} as const;
+import { DOM_TYPES } from "./utils/constants";
 
 export interface TextNode {
     type: typeof DOM_TYPES.TEXT;
